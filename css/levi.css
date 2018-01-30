@@ -1,0 +1,18 @@
+#console {
+    border: 1px solid black;
+    font-family: consolas;
+}
+
+#connection {
+    color: red;
+    font-weight: 400;
+}
+
+#connection.online {
+    color: green;
+    font-weight: 100;
+}
+
+#img {
+    width: 400px;
+}
