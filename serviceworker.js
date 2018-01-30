@@ -74,7 +74,7 @@ self.addEventListener('fetch', function(event) {
                     return response; // May or may not be undefined.
                 }
             }).catch(error => {
-                console.error("A cache request threw", error);
+                // console.error("A cache request threw", error);
                 return undefined;
             });
         })

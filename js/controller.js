@@ -1,7 +1,8 @@
 'use strict';
 
-// Named because we may want to add external controller functionality later
 var Controller = (function () {
+
+    const img = document.querySelector("img");
     async function kitteh() {
         asyncLoadImage(img, "../imgs/kitten.jpg")
             .catch((image) => {
@@ -9,27 +10,20 @@ var Controller = (function () {
             });
     }
 
-    function updateStatus(connection) {
-        connectionElement.innerText = connection.status;
-        if (connection.status == "online" && !connectionElement.classList.contains("online")) {
-            connectionElement.classList.add("online");
-            kitteh();
-        } else if (connection.status == "offline" && connectionElement.classList.contains("online")) {
-            connectionElement.classList.remove("online");
-            kitteh();
-        }
-    }
+    function setupOfflineLibrary() {
+        let useCustomOfflineHandler = true; // Switch to false to use offline.js, a common library.
+                                            // It's not fully wired up, so turn on at your own risk.
 
-    async function checkStatus() {
-        try {
-            const status = await fetch("../data/status.json");
-            status.json().then(status => updateStatus(status)).catch(error => console.log(error));
-            setTimeout(checkStatus, 5000);
-        } catch (error) {
-            console.log(error);
-            // When in doubt, try try again.
-            setTimeout(checkStatus, 5000);
-        }
+        let script = document.createElement("script");
+        script.src = useCustomOfflineHandler ? "js/simpleoffline.js" : "js/offline.min.js";
+        script.addEventListener("load", () => {
+            if (!useCustomOfflineHandler) {
+                // Register for updates to change our kitteh.
+                Offline.on("down", kitteh);
+                Offline.on("up", kitteh);
+            }
+        });
+        document.body.appendChild(script);
     }
 
     log("Controller loaded.")
@@ -56,10 +50,12 @@ var Controller = (function () {
            console.log('Service Worker Ready');
         });
 
-    const img = document.querySelector("img");
-    const connectionElement = document.querySelector("#connection")
-
-    // Load our first kitteh and our updateStatus watcher
+    // Load our first kitteh!
     kitteh();
-    checkStatus();
+
+    setupOfflineLibrary();
+
+    return {
+        reloadKitteh : () => kitteh()
+    }
 })();
